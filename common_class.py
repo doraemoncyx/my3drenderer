@@ -14,3 +14,17 @@ class Color(object):
 
 	def as_rgba_tuple(self):
 		return (int(self.r * self.maxColor), int(self.g * self.maxColor), int(self.b * self.maxColor), int(self.a * self.maxColor),)
+
+
+@attr.s
+class Float4D(object):
+	x = attr.ib(default=0.0)
+	y = attr.ib(default=0.0)
+	z = attr.ib(default=0.0)
+	w = attr.ib(default=0.0)
+
+	def as_int(self):
+		self.x = int(self.x)
+		self.y = int(self.y)
+		self.z = int(self.z)
+		self.w = int(self.w)
