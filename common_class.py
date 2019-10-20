@@ -3,78 +3,88 @@
 
 import attr
 from typing import *
+import numpy
+from PIL import Image
+
+
+@attr.s
+class RenderTarget(object):
+	data = attr.ib(factory=lambda: numpy.array([]))
+	w = attr.ib(default=0)
+	h = attr.ib(default=0)
+	
+	@classmethod
+	def from_w_h(cls, w, h):
+		c = cls(None, w, h)
+		c.data = numpy.zeros((h, w, 4), dtype=numpy.dtype('uint8'))
+		return c
+	
+	def as_image(self) -> Image.Image:
+		m = Image.fromarray(self.data)
+		return m
+	
+	@property
+	def size(self):
+		return self.w, self.h
 
 
 @attr.s
 class Color(object):
-	r = attr.ib(default=0.0)
-	g = attr.ib(default=0.0)
-	b = attr.ib(default=0.0)
-	a = attr.ib(default=0.0)
+	data = attr.ib(factory=lambda: numpy.array([]))
 	maxColor = 255.999999
 	
 	def as_rgba_tuple(self):
-		return (int(self.r * self.maxColor), int(self.g * self.maxColor), int(self.b * self.maxColor),
-		        int(self.a * self.maxColor),)
+		tmp = self.data * self.maxColor
+		tmp = tmp.astype(numpy.dtype('uint8'))
+		return tuple(tmp.tolist())
+	
+	@property
+	def r(self):
+		return self.data[0]
+	
+	@property
+	def g(self):
+		return self.data[1]
+	
+	@property
+	def b(self):
+		return self.data[2]
+	
+	@property
+	def a(self):
+		return self.data[3]
 
 
 @attr.s
-class Float3D(object):
-	x = attr.ib(default=0.0)
-	y = attr.ib(default=0.0)
-	z = attr.ib(default=0.0)
+class Vector(object):
+	data = attr.ib(factory=lambda: numpy.array([]))
+	length = attr.ib(default=0)
 	
-	def crossproduct(self, other):
-		"""
-
-		:type other: Float3D
-		"""
-		a1, a2, a3 = self.x, self.y, self.z
-		b1, b2, b3 = other.x, other.y, other.z
-		return Float3D(a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1)
+	@classmethod
+	def from_size(cls, w):
+		c = cls()
+		c.length = w
+		c.data = numpy.zeros(w, dtype=float)
+		return c
 	
 	def normalize(self):
-		s = (self.x * self.x + self.y * self.y + self.z * self.z) ** 0.5;
-		self.x /= s
-		self.y /= s
-		self.z /= s
-		return self
-	
-	def __sub__(self, other):
-		"""
-
-		:type other: Float3D
-		"""
-		return Float3D(self.x - other.x, self.y - other.y, self.z - other.z)
-	
-	def __mul__(self, other):
-		"""
-
-		:type other: Float3D
-		:rtype: float
-		"""
-		return sum((self.x * other.x, self.y * other.y, self.z * other.z))
+		n = numpy.linalg.norm(self.data)
+		if n > 0:
+			self.data = self.data / n
 
 
 @attr.s
-class Float4D(object):
-	x = attr.ib(default=0.0)
-	y = attr.ib(default=0.0)
-	z = attr.ib(default=0.0)
-	w = attr.ib(default=0.0)
+class Vertex(object):
+	xyzw = attr.ib(factory=lambda: numpy.array([]))
 	
-	def as_int(self):
-		self.x = int(self.x)
-		self.y = int(self.y)
-		self.z = int(self.z)
-		self.w = int(self.w)
+	@property
+	def x(self):
+		return self.xyzw[0]
 	
-	def __sub__(self, other):
-		"""
-
-		:type other: Float4D
-		"""
-		return Float4D(self.x - other.x, self.y - other.y, self.z - other.z, self.w - other.w)
+	@property
+	def y(self):
+		return self.xyzw[1]
 	
-	def as_float3d(self) -> Float3D:
-		return Float3D(self.x, self.y, self.z)
+	@property
+	def z(self):
+		return self.xyzw[2]
