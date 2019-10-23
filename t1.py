@@ -86,7 +86,7 @@ def test3():  # draw triangle with z buffer
 	m.save('out.png')
 
 	z = rt.zBuffer
-	z = z*255.99
+	z = z*255.99 + 255.99
 	z = z.astype(numpy.dtype('uint8'))
 	m = ImageOps.flip(Image.fromarray(z))
 	m.save('zbuffer.png')

@@ -10,7 +10,9 @@ import numpy
 class ObjParser(object):
 	vertexs: List[common_class.Vertex] = attr.Factory(list)
 	faces: List[List[int]] = attr.Factory(list)
-	
+	facesTex: List[List[int]] = attr.Factory(list)
+	textureCoords: List = attr.ib(default=[])
+
 	def open_obj_file(self, filename):
 		self.vertexs.clear()
 		self.faces.clear()
@@ -27,9 +29,18 @@ class ObjParser(object):
 					self.vertexs.append(tmp)
 				elif line.startswith('f '):
 					tri = []
+					texIdx = []
 					items = line.split(' ')
 					for item in items[1:]:
 						nums = item.split('/')
 						tri.append(int(nums[0]) - 1)
+						texIdx.append(int(nums[1]) - 1)
 					self.faces.append(tri)
+					self.facesTex.append(texIdx)
+				elif line.startswith('vt '):
+					items = line.split(' ')
+					d = items[2:4]
+
+					d = [float(c) for c in d]
+					self.textureCoords.append(d)
 		i = 1
