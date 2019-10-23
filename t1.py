@@ -10,7 +10,7 @@ import numpy
 
 
 def test1():  # draw wireframe
-	rt = common_class.RenderTarget.from_w_h(500, 500)
+	rt = common_class.RenderTarget.from_w_h(500, 500, (0, 0, 0, 255))
 	mod = model.ObjParser()
 	mod.open_obj_file('res/obj/african_head.obj')
 	c = common_class.Color(numpy.array([0, 0, 1, 1.0]))
@@ -28,7 +28,7 @@ def test1():  # draw wireframe
 
 
 def test2():  # draw triangle
-	rt = common_class.RenderTarget.from_w_h(500, 500)
+	rt = common_class.RenderTarget.from_w_h(500, 500, (255, 0, 0, 255))
 	mod = model.ObjParser()
 	mod.open_obj_file('res/obj/african_head.obj')
 
