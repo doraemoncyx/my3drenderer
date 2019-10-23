@@ -19,7 +19,7 @@ class ObjParser(object):
 				if line.startswith('v '):
 					items = line.split(' ')
 					tmp = common_class.Vertex()
-					tmp.xyzw = numpy.zeros(4, dtype=float)
+					tmp.xyzw = numpy.zeros(3, dtype=float)
 					d = tmp.xyzw
 					d[0] = items[1]
 					d[1] = items[2]
