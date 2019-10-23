@@ -43,13 +43,20 @@ def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.
 	x0, y0 = get_coord(v0.x, size[0]), get_coord(v0.y, size[1])
 	x1, y1 = get_coord(v1.x, size[0]), get_coord(v1.y, size[1])
 	x2, y2 = get_coord(v2.x, size[0]), get_coord(v2.y, size[1])
+	commonDiv = ((x0 - x1) * (-y0 + y2) + (x0 - x2) * (y0 - y1))
+	if commonDiv<0:
+		x1,y1,x2,y2 = x2,y2,x1,y1
+		commonDiv = -commonDiv
 	try:
-		uc = ((x0 - x2) * (y0 - 0) + (x0 - 0) * (-y0 + y2)) / ((x0 - x1) * (-y0 + y2) + (x0 - x2) * (y0 - y1))
-		uy = (x2 - x0) / ((x0 - x1) * (-y0 + y2) + (x0 - x2) * (y0 - y1))
-		ux = (y0 - y2) / ((x0 - x1) * (-y0 + y2) + (x0 - x2) * (y0 - y1))
-		vc = (-(x0 - x1) * (y0 - 0) + (x0 - 0) * (y0 - y1)) / ((x0 - x1) * (-y0 + y2) + (x0 - x2) * (y0 - y1))
-		vx = (y1 - y0) / ((x0 - x1) * (-y0 + y2) + (x0 - x2) * (y0 - y1))
-		vy = (x0 - x1) / ((x0 - x1) * (-y0 + y2) + (x0 - x2) * (y0 - y1))
+		uc = ((x0 - x2) * (y0 - 0) + (x0 - 0) * (-y0 + y2))
+		uy = (x2 - x0)
+		ux = (y0 - y2)
+		vc = (-(x0 - x1) * (y0 - 0) + (x0 - 0) * (y0 - y1))
+		vx = (y1 - y0)
+		vy = (x0 - x1)
+		if commonDiv==0:
+			#TODO:  is a line
+			return
 	except ZeroDivisionError:  # do not form a triangle
 		s = traceback.format_exc()
 		return
@@ -63,5 +70,9 @@ def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.
 		for py in range(miny, maxy + 1):
 			u = ux * px + uy * py + uc
 			v = vx * px + vy * py + vc
-			if 0 <= u <= 1 and 0 <= v <= 1 and u + v <= 1:
+			if v<0 and vy<0:
+				break
+			if v>commonDiv and vy>commonDiv:
+				break
+			if 0 <= u <= commonDiv and 0 <= v <= commonDiv and u + v <= commonDiv:
 				d[py, px] = t

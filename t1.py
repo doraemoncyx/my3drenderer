@@ -37,7 +37,8 @@ def test2():  # draw triangle
 	lightDir.data[1] = 0
 	lightDir.data[2] = -11
 	lightDir.normalize()
-	for face in mod.faces:
+
+	for idx,face in enumerate(mod.faces):
 		p0 = mod.vertexs[face[0]]
 		p1 = mod.vertexs[face[1]]
 		p2 = mod.vertexs[face[2]]
@@ -47,6 +48,7 @@ def test2():  # draw triangle
 		intensity = numpy.dot(lightDir.data, n)
 		if intensity < 0:
 			continue
+		# intensity = ((idx*10)%256)/255.99
 		c = common_class.Color(numpy.array([intensity, intensity, intensity, 1]))
 		c.data[3] = 1
 		rasterizer.triangle(p0, p1, p2, rt, c)
@@ -56,11 +58,16 @@ def test2():  # draw triangle
 
 
 def triangle_test():
-	rt = common_class.RenderTarget.from_w_h(500, 500)
-	c = common_class.Color(numpy.array([0, 0, 1, 1.0]))
-	v0 = common_class.Vertex(numpy.array([0, 0.05, 0]))
-	v1 = common_class.Vertex(numpy.array([1, 0, 0]))
-	v2 = common_class.Vertex(numpy.array([0, 0.1, 0]))
+	rt = common_class.RenderTarget.from_w_h(500, 500, (0,0,0,255))
+	c = common_class.Color(numpy.array([1, 1, 1, 1.0]))
+	v0 = common_class.Vertex(numpy.array([0, 0, 0]))
+	v1 = common_class.Vertex(numpy.array([0, 1, 0]))
+	v2 = common_class.Vertex(numpy.array([0.05, 0, 0]))
+	rasterizer.triangle(v0, v1, v2, rt, c)
+	c = common_class.Color(numpy.array([0, 1, 1, 1.0]))
+	v0 = common_class.Vertex(numpy.array([0.05, 1, 0]))
+	v1 = common_class.Vertex(numpy.array([0, 1, 0]))
+	v2 = common_class.Vertex(numpy.array([0.05, 0, 0]))
 	rasterizer.triangle(v0, v1, v2, rt, c)
 	m = ImageOps.flip(rt.as_image())
 	m.save('out.png')
@@ -68,3 +75,4 @@ def triangle_test():
 
 if __name__ == '__main__':
 	test2()
+	# triangle_test()
