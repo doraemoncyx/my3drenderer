@@ -56,6 +56,40 @@ def test2():  # draw triangle
 	m = ImageOps.flip(rt.as_image())
 	m.save('out.png')
 
+def test3():  # draw triangle with z buffer
+	rt = common_class.RenderTarget.from_w_h(500, 500, (255, 0, 0, 255), withZBuffer=True)
+	mod = model.ObjParser()
+	mod.open_obj_file('res/obj/african_head.obj')
+
+	lightDir = common_class.Vector.from_size(3)
+	lightDir.data[0] = 0
+	lightDir.data[1] = 0
+	lightDir.data[2] = -1
+	lightDir.normalize()
+
+	for idx,face in enumerate(mod.faces):
+		p0 = mod.vertexs[face[0]]
+		p1 = mod.vertexs[face[1]]
+		p2 = mod.vertexs[face[2]]
+		intensity = 1
+		n = numpy.cross(p2.xyzw - p0.xyzw, p1.xyzw - p0.xyzw)
+		n = n / numpy.linalg.norm(n)
+		intensity = numpy.dot(lightDir.data, n)
+		if intensity < 0:
+			continue
+		# intensity = ((idx*10)%256)/255.99
+		c = common_class.Color(numpy.array([intensity, intensity, intensity, 1]))
+		c.data[3] = 1
+		rasterizer.triangle(p0, p1, p2, rt, c)
+
+	m = ImageOps.flip(rt.as_image())
+	m.save('out.png')
+
+	z = rt.zBuffer
+	z = z*255.99
+	z = z.astype(numpy.dtype('uint8'))
+	m = ImageOps.flip(Image.fromarray(z))
+	m.save('zbuffer.png')
 
 def triangle_test():
 	rt = common_class.RenderTarget.from_w_h(500, 500, (0,0,0,255))
@@ -73,6 +107,7 @@ def triangle_test():
 	m.save('out.png')
 
 
+
 if __name__ == '__main__':
-	test2()
+	test3()
 	# triangle_test()

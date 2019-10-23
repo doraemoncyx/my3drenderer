@@ -36,6 +36,10 @@ def line(v0: common_class.Vertex, v1: common_class.Vertex, image: common_class.R
 		d[y, x] = t
 
 
+def interpolate_by_uv(u, v, commonDiv, v0, v1, v2):
+	return (u * v1 + v * v2 + (commonDiv - u - v) * v0) / commonDiv
+
+
 def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.Vertex,
              image: common_class.RenderTarget, color: common_class.Color):
 	# u * v01 +v * v02 = v0p
@@ -44,8 +48,8 @@ def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.
 	x1, y1 = get_coord(v1.x, size[0]), get_coord(v1.y, size[1])
 	x2, y2 = get_coord(v2.x, size[0]), get_coord(v2.y, size[1])
 	commonDiv = ((x0 - x1) * (-y0 + y2) + (x0 - x2) * (y0 - y1))
-	if commonDiv<0:
-		x1,y1,x2,y2 = x2,y2,x1,y1
+	if commonDiv < 0:
+		x1, y1, x2, y2 = x2, y2, x1, y1
 		commonDiv = -commonDiv
 	try:
 		uc = ((x0 - x2) * (y0 - 0) + (x0 - 0) * (-y0 + y2))
@@ -54,8 +58,8 @@ def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.
 		vc = (-(x0 - x1) * (y0 - 0) + (x0 - 0) * (y0 - y1))
 		vx = (y1 - y0)
 		vy = (x0 - x1)
-		if commonDiv==0:
-			#TODO:  is a line
+		if commonDiv == 0:
+			# TODO:  is a line
 			return
 	except ZeroDivisionError:  # do not form a triangle
 		s = traceback.format_exc()
@@ -70,9 +74,13 @@ def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.
 		for py in range(miny, maxy + 1):
 			u = ux * px + uy * py + uc
 			v = vx * px + vy * py + vc
-			if v<0 and vy<0:
+			if v < 0 and vy < 0:
 				break
-			if v>commonDiv and vy>commonDiv:
+			if v > commonDiv and vy > commonDiv:
 				break
 			if 0 <= u <= commonDiv and 0 <= v <= commonDiv and u + v <= commonDiv:
-				d[py, px] = t
+				if image.zBuffer.size > 0:
+					curZ = interpolate_by_uv(u, v, commonDiv, v0.z, v1.z, v2.z)
+					if curZ > image.zBuffer[py, px]:
+						image.zBuffer[py, px] = curZ
+						d[py, px] = t

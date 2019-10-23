@@ -9,17 +9,20 @@ from PIL import Image
 
 @attr.s
 class RenderTarget(object):
-	data = attr.ib(factory=lambda: numpy.array([]))
 	w = attr.ib(default=0)
 	h = attr.ib(default=0)
+	data = attr.ib(factory=lambda: numpy.array([]))
+	zBuffer = attr.ib(factory=lambda: numpy.array([]))
 
 	@classmethod
-	def from_w_h(cls, w, h, color):
+	def from_w_h(cls, w, h, color, withZBuffer=False):
 		assert len(color) == 4
-		c = cls(None, w, h)
+		c = cls(w, h)
 		d = numpy.tile(numpy.array(color, dtype=numpy.dtype('uint8')), w * h)
 		d.resize(h, w, 4)
 		c.data = d
+		if withZBuffer:
+			c.zBuffer = numpy.ones((h, w), dtype=float) * -999999
 		return c
 
 	def as_image(self) -> Image.Image:
