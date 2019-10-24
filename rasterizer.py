@@ -41,7 +41,8 @@ def interpolate_by_uv(u, v, commonDiv, v0, v1, v2):
 
 
 def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.Vertex,
-             image: common_class.RenderTarget, color: common_class.Color):
+             image: common_class.RenderTarget, color: common_class.Color,
+             texture: Image.Image = None):
 	# u * v01 +v * v02 = v0p
 	size = image.data.shape
 	x0, y0 = get_coord(v0.x, size[0]), get_coord(v0.y, size[1])
@@ -70,6 +71,8 @@ def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.
 	maxy = max(y1, y2, y0)
 	t = color.as_rgba_tuple()
 	d = image.data
+	if texture:
+		tw, th = texture.size
 	for px in range(minx, maxx + 1):
 		for py in range(miny, maxy + 1):
 			u = ux * px + uy * py + uc
@@ -79,8 +82,17 @@ def triangle(v0: common_class.Vertex, v1: common_class.Vertex, v2: common_class.
 			if v > commonDiv and vy > commonDiv:
 				break
 			if 0 <= u <= commonDiv and 0 <= v <= commonDiv and u + v <= commonDiv:
+				curColor = t
+				if texture:
+					curTexU = interpolate_by_uv(u, v, commonDiv, v0.uv[0], v1.uv[0], v2.uv[0])
+					curTexV = interpolate_by_uv(u, v, commonDiv, v0.uv[1], v1.uv[1], v2.uv[1])
+					p = texture.getpixel((int(curTexU * tw), int((1-curTexV) * th)))
+					curColor = p
 				if image.zBuffer.size > 0:
 					curZ = interpolate_by_uv(u, v, commonDiv, v0.z, v1.z, v2.z)
 					if curZ > image.zBuffer[py, px]:
 						image.zBuffer[py, px] = curZ
-						d[py, px] = t
+						d[py, px] = curColor
+				else:
+					d[py, px] = curColor
+

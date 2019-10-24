@@ -1,5 +1,6 @@
 # coding=gb18030
 # by cyx at 2019/10/17 13:01
+from typing import Optional, Any
 
 from PIL import Image, ImageOps
 import common_class
@@ -38,7 +39,7 @@ def test2():  # draw triangle
 	lightDir.data[2] = -11
 	lightDir.normalize()
 
-	for idx,face in enumerate(mod.faces):
+	for idx, face in enumerate(mod.faces):
 		p0 = mod.vertexs[face[0]]
 		p1 = mod.vertexs[face[1]]
 		p2 = mod.vertexs[face[2]]
@@ -55,6 +56,7 @@ def test2():  # draw triangle
 
 	m = ImageOps.flip(rt.as_image())
 	m.save('out.png')
+
 
 def test3():  # draw triangle with z buffer
 	rt = common_class.RenderTarget.from_w_h(500, 500, (255, 0, 0, 255), withZBuffer=True)
@@ -67,11 +69,16 @@ def test3():  # draw triangle with z buffer
 	lightDir.data[2] = -1
 	lightDir.normalize()
 
-	for idx,face in enumerate(mod.faces):
+	tex: Image.Image = Image.open('res/texture/african_head_diffuse.tga')
+	tex = tex.convert('RGBA')
+	for idx, face in enumerate(mod.faces):
 		p0 = mod.vertexs[face[0]]
 		p1 = mod.vertexs[face[1]]
 		p2 = mod.vertexs[face[2]]
-		intensity = 1
+		uvIdx = mod.facesTex[idx]
+		p0.uv = mod.textureCoords[uvIdx[0]]
+		p1.uv = mod.textureCoords[uvIdx[1]]
+		p2.uv = mod.textureCoords[uvIdx[2]]
 		n = numpy.cross(p2.xyzw - p0.xyzw, p1.xyzw - p0.xyzw)
 		n = n / numpy.linalg.norm(n)
 		intensity = numpy.dot(lightDir.data, n)
@@ -80,19 +87,20 @@ def test3():  # draw triangle with z buffer
 		# intensity = ((idx*10)%256)/255.99
 		c = common_class.Color(numpy.array([intensity, intensity, intensity, 1]))
 		c.data[3] = 1
-		rasterizer.triangle(p0, p1, p2, rt, c)
+		rasterizer.triangle(p0, p1, p2, rt, c, tex)
 
 	m = ImageOps.flip(rt.as_image())
 	m.save('out.png')
 
 	z = rt.zBuffer
-	z = z*255.99 + 255.99
+	z = z * 255.99 + 255.99
 	z = z.astype(numpy.dtype('uint8'))
 	m = ImageOps.flip(Image.fromarray(z))
 	m.save('zbuffer.png')
 
+
 def triangle_test():
-	rt = common_class.RenderTarget.from_w_h(500, 500, (0,0,0,255))
+	rt = common_class.RenderTarget.from_w_h(500, 500, (0, 0, 0, 255))
 	c = common_class.Color(numpy.array([1, 1, 1, 1.0]))
 	v0 = common_class.Vertex(numpy.array([0, 0, 0]))
 	v1 = common_class.Vertex(numpy.array([0, 1, 0]))
@@ -107,7 +115,6 @@ def triangle_test():
 	m.save('out.png')
 
 
-
 if __name__ == '__main__':
 	test3()
-	# triangle_test()
+# triangle_test()

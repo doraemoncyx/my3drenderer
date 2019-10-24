@@ -65,7 +65,6 @@ class Color(object):
 class Vector(object):
 	data = attr.ib(factory=lambda: numpy.array([]))
 	length = attr.ib(default=0)
-
 	@classmethod
 	def from_size(cls, w):
 		c = cls()
@@ -82,6 +81,7 @@ class Vector(object):
 @attr.s
 class Vertex(object):
 	xyzw = attr.ib(factory=lambda: numpy.array([]))
+	uv = attr.ib(default=[])
 
 	@property
 	def x(self):
