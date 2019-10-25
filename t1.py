@@ -115,6 +115,19 @@ def triangle_test():
 	m.save('out.png')
 
 
+def line_test():
+	import python_device
+	d = python_device.PythonDevice()
+	d.curRt = numpy.zeros((500, 500, 4), dtype=numpy.dtype('uint8'))
+	d.indexBuf = numpy.array([0, 1])
+	v0 = common_class.Vertex()
+	v0.xyzw = numpy.array([-1, -1, 0, 0])
+	v1 = common_class.Vertex()
+	v1.xyzw = numpy.array([1, 1, 0, 0])
+	d.vertexBuf = [v0, v1]
+	d.vertexShader
+
+
 if __name__ == '__main__':
 	test3()
 # triangle_test()
